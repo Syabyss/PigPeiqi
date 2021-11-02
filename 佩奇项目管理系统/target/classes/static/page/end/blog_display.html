@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta HTTP-EQUIV="pragma" CONTENT="no-cache">
+    <meta HTTP-EQUIV="Cache-Control" CONTENT="no-cache, must-revalidate">
+    <meta HTTP-EQUIV="expires" CONTENT="0">
+    <title>新闻信息</title>
+    <link rel="stylesheet" href="../../css/element.css">
+    <link rel="stylesheet" href="../../css/base.css">
+</head>
+<body>
+<div id="wrapper" v-cloak>
+    <div style="padding-bottom: 10px">
+        <el-breadcrumb separator-class="el-icon-arrow-right">
+            <el-breadcrumb-item @click.native="parent.changeIndex('index')">首页</el-breadcrumb-item>
+            <el-breadcrumb-item>新闻信息</el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
+
+    <div style="height: 1px; margin: 10px 0; background-color: white"></div>
+
+    <el-card style="margin-top: 20px; margin-bottom: 50px">
+        <div style="text-align: center">
+            <div style="color: #888; font-size: 20px;">{{entity.title}}</div>
+        </div>
+        <div style="text-align: center; margin-top: 10px">
+            <div style="color: #888; font-size: 10px;">
+                作者：{{entity.author}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                时间：{{entity.time}}</div>
+        </div>
+        <!--                    分割线-->
+        <div style="height: 1px; margin: 10px 0; background-color: #ccc"></div>
+
+        <div style="padding: 20px; color: #888" id="view-notice-body">
+
+        </div>
+    </el-card>
+</div>
+
+<script src="../../js/jquery.min.js"></script>
+<script src="../../js/vue.min.js"></script>
+<script src="../../js/element.js"></script>
+<script src="../../js/tinymce/tinymce.min.js"></script>
+
+
+<script>
+
+    let urlBase = "/api/user/";
+    new Vue({
+        el: "#wrapper",
+        data: {
+            user: {},
+            entity: {},
+            isCollapse: false,
+        },
+        mounted() {
+            this.user = sessionStorage.getItem("user") ? JSON.parse(sessionStorage.getItem("user")) : {};
+
+            let id = location.search.split("=")[1];
+            if (id) {
+                $.get("/api/blog/" + id).then(res => {
+                    this.entity = res.data;
+                    console.log(this.entity);
+                    $('#view-notice-body').html(res.data.content);
+                })
+            }
+        },
+        methods: {
+            handleCollapse() {
+                this.isCollapse = !this.isCollapse;
+            },
+            logout() {
+                // 请求退出接口
+                $.get("/api/user/logout");
+                localStorage.removeItem("user");
+                location.href = "/page/end/login.html";
+            }
+        }
+    })
+</script>
+</body>
+</html>

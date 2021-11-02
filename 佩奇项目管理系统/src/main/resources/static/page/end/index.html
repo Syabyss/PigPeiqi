@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta HTTP-EQUIV="pragma" CONTENT="no-cache">
+    <meta HTTP-EQUIV="Cache-Control" CONTENT="no-cache, must-revalidate">
+    <meta HTTP-EQUIV="expires" CONTENT="0">
+    <title>首页</title>
+    <link rel="stylesheet" href="../../css/element.css">
+    <link rel="stylesheet" href="../../css/base.css">
+    <style>
+        .el-divider__text {
+            background: #eee;
+        }
+    </style>
+</head>
+<body>
+<div id="wrapper" v-cloak>
+    <!--                <div style="margin: 10px 0"><el-button size="mini" @click="location.href = '/page/front/frame.html'">前往前台首页</el-button></div>-->
+    <!--                <el-divider content-position="left">数据概览</el-divider>-->
+    <!--                <el-row :gutter="10" style="padding: 5px 0">-->
+    <!--                    <el-col :span="6">-->
+    <!--                        <el-card style="padding: 10px">-->
+    <!--                            <div style="display: inline-block; padding-right: 20px; vertical-align: middle;">-->
+    <!--                                <img src="../../file/home/home-01.png" style="width: 60px">-->
+    <!--                            </div>-->
+    <!--                            <div style="display: inline-block; padding-left: 40px; vertical-align: middle;">-->
+    <!--                                <div style="color: #455a64; font-size: 24px; padding-bottom: 5px">{{ users.length }}</div>-->
+    <!--                                <div style="color: #99abb4;">用户</div>-->
+    <!--                            </div>-->
+    <!--                        </el-card>-->
+    <!--                    </el-col>-->
+    <!--                    <el-col :span="6">-->
+    <!--                        <el-card style="padding: 10px">-->
+    <!--                            <div style="display: inline-block; padding-right: 20px; vertical-align: middle;">-->
+    <!--                                <img src="../../file/home/home-02.png" style="width: 60px">-->
+    <!--                            </div>-->
+    <!--                            <div style="display: inline-block; padding-left: 40px; vertical-align: middle;">-->
+    <!--                                <div style="color: #455a64; font-size: 24px; padding-bottom: 5px">{{ roles.length }}</div>-->
+    <!--                                <div style="color: #99abb4;">角色</div>-->
+    <!--                            </div>-->
+    <!--                        </el-card>-->
+    <!--                    </el-col>-->
+    <!--                    <el-col :span="6">-->
+    <!--                        <el-card style="padding: 10px">-->
+    <!--                            <div style="display: inline-block; padding-right: 20px; vertical-align: middle;">-->
+    <!--                                <img src="../../file/home/home-03.png" style="width: 60px">-->
+    <!--                            </div>-->
+    <!--                            <div style="display: inline-block; padding-left: 40px; vertical-align: middle;">-->
+    <!--                                <div style="color: #455a64; font-size: 24px; padding-bottom: 5px">{{ permissions.length }}</div>-->
+    <!--                                <div style="color: #99abb4;">权限</div>-->
+    <!--                            </div>-->
+    <!--                        </el-card>-->
+    <!--                    </el-col>-->
+    <!--                    <el-col :span="6">-->
+    <!--                        <el-card style="padding: 10px">-->
+    <!--                            <div style="display: inline-block; padding-right: 20px; vertical-align: middle;">-->
+    <!--                                <img src="../../file/home/home-04.png" style="width: 60px">-->
+    <!--                            </div>-->
+    <!--                            <div style="display: inline-block; padding-left: 40px; vertical-align: middle;">-->
+    <!--                                <div style="color: #455a64; font-size: 24px; padding-bottom: 5px">{{ notices.length }}</div>-->
+    <!--                                <div style="color: #99abb4;">公告</div>-->
+    <!--                            </div>-->
+    <!--                        </el-card>-->
+    <!--                    </el-col>-->
+    <!--                </el-row>-->
+
+    <el-row :gutter="10">
+        <el-col :span="10">
+            <el-card>
+                <div id="view" style="width: 100%;height:500px; margin: 0 auto"></div>
+            </el-card>
+        </el-col>
+        <el-col :span="14">
+            <el-card>
+                <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+                <div id="click" style="width: 100%;height:500px; margin: 0 auto"></div>
+            </el-card>
+        </el-col>
+    </el-row>
+
+    <el-row style="padding: 5px 0">
+        <el-col :span="24">
+            <el-card>
+                <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+                <div id="polyline" style="width: 100%;height:400px; margin: 0 auto"></div>
+            </el-card>
+        </el-col>
+    </el-row>
+
+    <el-row :gutter="10">
+        <el-col :span="10">
+            <el-card>
+                <h2>各单位注册人数统计</h2>
+                <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+                <div id="bar" style="width: 100%;height:400px; margin: 0 auto"></div>
+            </el-card>
+        </el-col>
+        <el-col :span="14">
+            <el-card>
+                <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+                <h2>单位组成结构图</h2>
+                <div id="data" style="width: 100%;height:400px; margin: 0 auto"></div>
+            </el-card>
+        </el-col>
+    </el-row>
+
+    <el-row style="padding: 5px 0">
+        <el-col :span="24">
+            <el-card>
+                <h2>项目发布时间轴</h2>
+                <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+                <div id="date" style="width: 100%;height:700px; margin: 0 auto"></div>
+            </el-card>
+        </el-col>
+    </el-row>
+</div>
+
+<script src="../../js/echarts.min.js"></script>
+<script src="../../js/china.js"></script>
+<script src="../../js/jquery.min.js"></script>
+<script src="../../js/vue.min.js"></script>
+<script src="../../js/element.js"></script>
+
+
+<script>
+    const userOption = {
+        title: {text: '用户所在地统计'},
+        tooltip: {trigger: 'item'},
+        legend: {top: '5%', left: 'center'},
+        series: [
+            {
+                name: '所在地',
+                type: 'pie',
+                radius: ['40%', '70%'],
+                avoidLabelOverlap: false,
+                itemStyle: {
+                    borderRadius: 10,
+                    borderColor: '#fff',
+                    borderWidth: 2
+                },
+                label: {
+                    show: true,
+                    position: 'center'
+                },
+                data: []
+            }
+        ]
+    };
+    const viewOption = {
+        title: {
+            text: '站点文章阅读量统计',
+            subtext: '根据标签',
+            left: 'center'
+        },
+        tooltip: {
+            trigger: 'item'
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'left',
+        },
+        series: [
+            {
+                name: '阅读量',
+                type: 'pie',
+                radius: '50%',
+                data: [],
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    };
+    const lineOption = {
+        title: {text: '站点浏览量统计'},
+        tooltip: {trigger: 'axis'},
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+        },
+        yAxis: {type: 'value'},
+        series: [
+            {
+                name: '本周内',
+                type: 'line',
+                data: [120, 132, 101, 134, 90, 230, 210]
+            },
+
+        ]
+    };
+    const barOption = {
+        xAxis: {
+            type: 'category',
+            data: []
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [
+            {
+                data: [],
+                type: 'bar'
+            }
+        ]
+
+    };
+    const data = {
+        name: '佩奇项目管理系统',
+        children:[]
+    };
+    const dataOption = {
+        tooltip: {
+            trigger: 'item',
+            triggerOn: 'mousemove'
+        },
+        series: [
+            {
+                type: 'tree',
+                id: 0,
+                name: 'tree1',
+                data: [data],
+                top: '10%',
+                left: '16%',
+                bottom: '22%',
+                right: '8%',
+                symbolSize: 7,
+                edgeShape: 'polyline',
+                edgeForkPosition: '63%',
+                initialTreeDepth: 3,
+                lineStyle: {
+                    width: 2
+                },
+                label: {
+                    backgroundColor: '#fff',
+                    position: 'left',
+                    verticalAlign: 'middle',
+                    align: 'right'
+                },
+                leaves: {
+                    label: {
+                        position: 'right',
+                        verticalAlign: 'middle',
+                        align: 'left'
+                    }
+                },
+                emphasis: {
+                    focus: 'descendant'
+                },
+                expandAndCollapse: true,
+                animationDuration: 550,
+                animationDurationUpdate: 750
+            }
+        ]
+    };
+    const dateOption = {
+        tooltip: {
+            position: 'top'
+        },
+        visualMap: {
+            min: 0,
+            max: 20,
+            calculable: true,
+            orient: 'horizontal',
+            left: 'center',
+            top: 'top'
+        },
+        calendar: [
+            {
+                range: '2021',
+                cellSize: ['auto', 20]
+            },
+            {
+                top: 260,
+                range: '2020',
+                cellSize: ['auto', 20]
+            },
+            {
+                top: 450,
+                range: '2019',
+                cellSize: ['auto', 20],
+                right: 5
+            }
+        ],
+        series: [
+            {
+                type: 'heatmap',
+                coordinateSystem: 'calendar',
+                calendarIndex: 0,
+                data:[]
+            },
+            {
+                type: 'heatmap',
+                coordinateSystem: 'calendar',
+                calendarIndex: 1,
+                data: getVirtulData('2016')
+            },
+            {
+                type: 'heatmap',
+                coordinateSystem: 'calendar',
+                calendarIndex: 2,
+                data: getVirtulData('2015')
+            }
+        ]
+    };
+    option = {
+        tooltip: {
+            trigger: 'item',
+            triggerOn: 'mousemove'
+        },
+        series: [
+            {
+                type: 'tree',
+                id: 0,
+                name: 'tree1',
+                data: [data],
+                top: '10%',
+                left: '8%',
+                bottom: '22%',
+                right: '20%',
+                symbolSize: 7,
+                edgeShape: 'polyline',
+                edgeForkPosition: '63%',
+                initialTreeDepth: 3,
+                lineStyle: {
+                    width: 2
+                },
+                label: {
+                    backgroundColor: '#fff',
+                    position: 'left',
+                    verticalAlign: 'middle',
+                    align: 'right'
+                },
+                leaves: {
+                    label: {
+                        position: 'right',
+                        verticalAlign: 'middle',
+                        align: 'left'
+                    }
+                },
+                emphasis: {
+                    focus: 'descendant'
+                },
+                expandAndCollapse: true,
+                animationDuration: 550,
+                animationDurationUpdate: 750
+            }
+        ]
+    };
+
+    function getVirtulData(year) {
+        year = year || '2017';
+        let date = +echarts.number.parseDate(year + '-01-01');
+        let end = +echarts.number.parseDate(+year + 1 + '-01-01');
+        let dayTime = 3600 * 24 * 1000;
+        let data = [];
+        for (let time = date; time < end; time += dayTime) {
+            data.push([
+                echarts.format.formatTime('yyyy-MM-dd', time),
+                Math.floor(Math.random() * 20)
+            ]);
+        }
+        return data;
+    }
+
+    new Vue({
+        el: "#wrapper",
+        data: {
+            active: 0,
+            users: [],
+            roles: [],
+            permissions: [],
+            notices: [],
+            user: {},
+            tableData: [],
+            pageNum: 1,
+            pageSize: 10,
+            total: 0,
+            dialogFormVisible: false,
+            entity: {},
+            isCollapse: false,
+            departments:[],
+            totalDepartments:[],
+            tableDate:[]
+        },
+        mounted() {
+            this.user = sessionStorage.getItem("user") ? JSON.parse(sessionStorage.getItem("user")) : {};
+            this.load();
+        },
+        methods: {
+            load() {
+                $.get("/api/notice/").then((res) => {
+                    this.notices = res.data;
+                });
+
+                // 基于准备好的dom，初始化echarts实例，用户统计
+                let viewChart = echarts.init(document.getElementById('view'));
+                $.ajax({
+                    url: "/api/user",
+                    success(res) {
+                        let address = Array.from(new Set(res.data.map(v => v.address)));
+                        address.forEach(item => {
+                            let count = res.data.filter(v => v.address === item).length;
+                            userOption.series[0].data.push({name: item, value: count})
+                        });
+
+                        // 使用刚指定的配置项和数据显示图表。
+                        viewChart.setOption(userOption);
+                    }
+                });
+                // 基于准备好的dom，初始化echarts实例，阅读量统计
+                let clickChart = echarts.init(document.getElementById('click'));
+                $.ajax({
+                    url: "/api/blog",
+                    success(res) {
+                        let tag = Array.from(new Set(res.data.map(v => v.tag)));
+                        tag.forEach(item => {
+                            let count = 0;
+                            res.data.filter(v => {
+                                if (v.tag === item) {
+                                    count += v.view;
+                                }
+                            });
+                            viewOption.series[0].data.push({name: item, value: count})
+                        });
+                        // 使用刚指定的配置项和数据显示图表。
+                        clickChart.setOption(viewOption);
+                    }
+                });
+
+                // 基于准备好的dom，初始化echarts实例
+                let lineChart = echarts.init(document.getElementById('polyline'));
+                // 使用刚指定的配置项和数据显示图表。
+                lineChart.setOption(lineOption);
+                // 基于准备好的dom，初始化echarts实例
+                let barChart = echarts.init(document.getElementById('bar'));
+                $.ajax({
+                    url: "/api/department",
+                    success(res) {
+                        for (var i=0;i<Object.keys(res.data).length;i++){
+                            barOption.xAxis.data.push(res.data[i].name);
+                        }
+                        $.ajax({
+                            url: "/api/user",
+                            success(res) {
+                                for(var j=0;j<barOption.xAxis.data.length;j++){
+                                    barOption.series[0].data.push(0);
+                                }
+                                for (var i=0;i<Object.keys(res.data).length;i++){
+                                    for (var j=0;j<barOption.xAxis.data.length;j++){
+                                        if(res.data[i].department === barOption.xAxis.data[j]){
+                                            barOption.series[0].data[j]++;
+                                        }
+                                    }
+                                }
+                                // 使用刚指定的配置项和数据显示图表。
+                                barChart.setOption(barOption);
+                            }
+                        });
+                    }
+                });
+                let dataChart = echarts.init(document.getElementById('data'));
+                $.ajax({
+                    url: "/api/department",
+                    success(res) {
+                        var num=Object.keys(res.data).length;
+                        var result=[];
+                        var end=[];
+                        data.name="佩奇项目管理系统"
+                        for (var i=0;i<num;i++){
+                            var ind={
+                                name:"佩奇项目管理系统",
+                                children:[]
+                            }
+                            ind.name=res.data[i].name;
+                            ind.children=[];
+                            data.children.push(ind);
+                        }
+                        $.ajax({
+                            url: "/api/user",
+                            success(res) {
+                                for(var i=0;i<Object.keys(res.data).length;i++){
+                                    for(var j=0;j<num;j++){
+                                        if(res.data[i].department===data.children[j].name){
+                                            var ind={
+                                                name:"",
+                                                value:""
+                                            };
+                                            ind.name=res.data[i].nickName;
+                                            ind.value=res.data[i].title;
+                                            data.children[j].children.push(ind);
+                                        }
+                                    }
+                                }
+                                // 使用刚指定的配置项和数据显示图表。
+                                dataChart.setOption(dataOption);
+                            }
+                        });
+                    }
+                });
+                let dateChart = echarts.init(document.getElementById('date'));
+                $.ajax({
+                    url: "/api/blog",
+                    success(res) {
+                        var data=[]
+                        var result=[]
+                        result[0]=Array(2);
+                        var index=0;
+                        for(var i=0;i<Object.keys(res.data).length;i++){
+                            data.push(res.data[i].time.split(" ")[0]);
+                        }
+                        for(var i=0;i<data.length;i++){
+                            if(result[index][0]===data[i]){
+                                for(var j=0;j<result.length;j++){
+                                    if(result[j][0]===data[i]){
+                                        result[j][1]++;
+                                    }
+                                }
+                            }else{
+                                index++;
+                                result.push([data[i],1]);
+                            }
+                        }
+                        for(var i=1;i<result.length;i++){
+                            dateOption.series[0].data.push(result[i]);
+                        }
+                        console.log(dateOption.series[0].data);
+                        // 使用刚指定的配置项和数据显示图表。
+                        dateChart.setOption(dateOption);
+                    }
+                });
+            },
+            handleCollapse() {
+                this.isCollapse = !this.isCollapse;
+            },
+            logout() {
+                $.get("/api/user/logout");
+                sessionStorage.removeItem("user");
+                location.href = "/page/end/login.html";
+            },
+        }
+    })
+
+</script>
+</body>
+</html>

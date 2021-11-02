@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+    <link rel="stylesheet" href="../../css/element.css">
+    <link rel="stylesheet" href="../../css/base.css">
+
+    <style>
+        body {
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+<body style="height:100%;">
+
+<div id="wrapper" v-cloak class="affix-container">
+    <el-container>
+        <el-header style="background: #54A8DC">
+            <el-row style="height: 100%;" type="flex" justify="center" align="middle">
+                <el-col :span="5">
+                    <div style="color: white; text-align: center; font-size: 24px;">
+                        佩奇项目管理系统
+                    </div>
+                </el-col>
+                <el-col :span="16">
+                    <el-menu
+                            :default-active="src"
+                            mode="horizontal"
+                            @select="handleSelect"
+                            class="el-menu-demo"
+                            background-color="#54A8DC"
+                            text-color="#fff"
+                            active-text-color="#ffd04b"
+                    >
+                        <el-menu-item index="index.html">系统首页</el-menu-item>
+                        <el-menu-item index="blog.html">本站项目</el-menu-item>
+                        <el-menu-item index="resource.html">资源站点</el-menu-item>
+                        <el-menu-item index="message.html">留言反馈</el-menu-item>
+                        <el-menu-item index="author.html">关于本站</el-menu-item>
+
+                    </el-menu>
+                </el-col>
+                <el-col :span="4">
+                    <div v-if="user.id">
+                        <span style="color: white">欢迎你：{{user.username}}&nbsp;&nbsp;</span>
+                        <el-button size="mini" @click="logout">退出</el-button>
+                    </div>
+                    <div v-else>
+                        <a href="/page/end/login.html">
+                            <el-button size="mini" type="success" round>登录</el-button>
+                        </a>
+                    </div>
+                </el-col>
+            </el-row>
+        </el-header>
+
+        <el-main>
+
+            <el-row type="flex" justify="center" :gutter="20">
+                <el-col :span="16">
+                    <div>
+                        <el-row :gutter="10">
+                            <el-col :span="24">
+                                <el-carousel height="380px">
+                                    <el-carousel-item v-for="item in imgList" :key="item">
+                                        <a :href="'/page/front/detail.html?id=' + item.id" target="_blank">
+                                            <img style="width: 100%; height: 100%; border-radius: 4px;" :src='item.img'>
+                                        </a>
+                                    </el-carousel-item>
+                                </el-carousel>
+                            </el-col>
+                        </el-row>
+                    </div>
+                    <div style="margin: 20px 0">
+                        <el-card>
+                            <div style="border-bottom: 1px solid gray; padding: 10px 0; font-size: 20px">本站项目</div>
+                            <div style="margin: 10px 0">
+                                <el-row :gutter="10">
+                                    <el-col :span="8" v-for="(item,index) in blogData" :key="item" style="margin: 5px 0;">
+                                        <el-card :body-style="{ padding: '5px' }">
+                                            <a :href="'http://localhost:8888/page/front/detail.html?id=' + item.id" target="_blank">
+                                                <img :src="item.img" style="width: 100%; height: 170px; border-radius: 5px" class="image">
+                                            </a>
+                                            <div style="padding: 14px; height: 180px">
+                                                <div style="font-size: 16px; height: 50px"><strong>{{item.title}}</strong></div>
+                                                <div style="margin-top: 10px">
+                                                    <div style="color: #6b6b6b; height: 50px; margin-bottom: 10px">{{item.description}}</div>
+                                                    <span style="color: #6b6b6b">{{item.time}}</span>
+                                                    <a :href="'http://localhost:8888/page/front/detail.html?id=' + item.id" target="_blank">
+                                                        <el-button style="float: right" size="mini" icon="el-icon-view">阅读文章</el-button>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </el-card>
+                                    </el-col>
+                                </el-row>
+                            </div>
+                            <!-- 分页 -->
+                            <div style="background-color: white">
+                                <el-pagination
+                                        @size-change="handleSizeChange"
+                                        @current-change="handleCurrentChange"
+                                        :current-page="pageNum"
+                                        :page-sizes="[6, 9, 12, 15]"
+                                        :page-size="pageSize"
+                                        layout="total, sizes, prev, pager, next, jumper"
+                                        :total="total">
+                                </el-pagination>
+                            </div>
+                        </el-card>
+                    </div>
+                </el-col>
+                <el-col :span="6">
+                    <div>
+                        <el-card style="background-color: #4e4e4e; color: #e3e3e3">
+                            <div style="border-bottom: 1px solid orangered; padding-bottom: 10px; font-size: 20px">
+                                <span style="margin-right: 20px">个人信息</span>
+                                <el-button v-if="isAdmin" size="mini" @click="enterEnd">进入后台</el-button>
+                            </div>
+                            <div>
+                                <div style="color: #f0f8ff; margin: 10px 0; font-size: 14px">
+                                    <i class="el-icon-user"></i>
+                                    <span>姓名：{{user.nickName}}</span>
+                                </div>
+                                <div style="color: #f0f8ff; margin: 10px 0; font-size: 14px">
+                                    <i class="el-icon-place"></i>
+                                    <span>地址：{{user.address}}</span>
+                                </div>
+                                <div style="color: #f0f8ff; margin: 10px 0; font-size: 14px">
+                                    <i class="el-icon-phone-outline"></i>
+                                    <span>Phone：{{user.phone}}</span>
+                                </div>
+                                <div style="color: #f0f8ff; margin: 10px 0; font-size: 14px">
+                                    <i class="el-icon-s-comment"></i>
+                                    <span>e-mail：{{user.email}}</span>
+                                </div>
+                                <div style="color: #f0f8ff; margin: 10px 0; font-size: 14px">
+                                    <i class="el-icon-edit"></i>
+                                    <span v-if="flag">age：{{getAge(user.birth)}}</span>
+                                    <span v-else>age：</span>
+                                </div>
+                                <div align="center" v-if="user.id">
+                                    <el-tooltip
+                                            class="item"
+                                            effect="dark"
+                                            content="点击进入个人主页"
+                                            placement="top-start"/>
+                                    <el-button type="primary" icon="el-icon-edit" circle @click="enterAD"></el-button>
+                                </div>
+                            </div>
+                        </el-card>
+                    </div>
+                    <div style="margin: 20px 0">
+                        <el-card>
+                            <div style="border-bottom: 1px solid gray; padding-bottom: 10px; font-size: 20px">标签分类</div>
+                            <div style="margin-top: 10px">
+                                <a :href="'http://localhost:8888/page/front/blog.html?tag=' + item.name" v-for="item in tags">
+                                    <el-tag style="margin: 5px">{{item.name}}</el-tag>
+                                </a>
+                            </div>
+                        </el-card>
+                    </div>
+                </el-col>
+            </el-row>
+            <el-dialog title="完善个人信息":visible.sync="dialogVisible"
+                       width="35%"
+                       :append-to-body="true">
+                <div v-if="ty">
+                    <el-alert title="欢迎使用本项目管理系统"
+                              type="success"
+                              :center="true"
+                              description="请先完善个人信息呦!">
+
+                    </el-alert>
+                </div>
+                <div v-else>
+                    <el-alert title="错误操作"
+                              type="error"
+                              :center="true"
+                              :description="mse">
+
+                    </el-alert>
+                </div>
+                <br>
+                <span class="demo-input-label">姓名</span>
+                <el-row :gutter="20">
+                    <el-col  :span="12">
+                        <el-input
+                                v-model="nickName"
+                                placeholder="请输入你的真实姓名"
+                                :key="user.nickName"
+                                prefix-icon="el-icon-user"/>
+                    </el-col>
+                </el-row>
+                <br>
+                <span class="demo-input-label">邮箱地址</span>
+                <el-row :gutter="20">
+                    <el-col  :span="12">
+                        <el-input
+                                v-model="email"
+                                placeholder="请输入你的邮箱地址"
+                                :key="user.email"
+                                prefix-icon="el-icon-s-comment"/>
+                    </el-col>
+                </el-row>
+                <br>
+                <span class="demo-input-label">电话号码</span>
+                <el-row :gutter="20">
+                    <el-col  :span="12">
+                        <el-input
+                                v-model="phone"
+                                placeholder="请输入你的电话号码"
+                                :key="user.phone"
+                                prefix-icon="el-icon-phone-outline"/>
+                    </el-col>
+                </el-row>
+                <br>
+                <div class="block">
+                    <span class="demonstration">出生年月日</span>
+                    <el-row :gutter="20">
+                        <el-col  :span="12">
+                            <el-date-picker
+                                    v-model="date1"
+                                    type="date"
+                                    placeholder="选择你的出生年月日"
+                                    value-format=“yyyy-MM-dd”>
+                            </el-date-picker>
+                        </el-col>
+                    </el-row>
+                </div>
+                <br>
+                <span class="demonstration">地址</span>
+                <el-row :gutter="20">
+                    <el-col  :span="12">
+                        <el-cascader
+                                placeholder="请点击选择地址"
+                                :options="options"
+                                v-model="selectedOptions"
+                                @change="handleChange"
+                                clearable
+                                size="large">
+                        </el-cascader>
+                    </el-col>
+                </el-row>
+                <br><br><br>
+                <div align="center">
+                      <span class="dialog-footer">
+                        <el-button @click="dialogVisible = false">稍后再进行完善</el-button>
+                        <el-button type="primary" @click="submit_save">点击提交信息</el-button>
+                      </span>
+                </div>
+            </el-dialog>
+        </el-main>
+        <el-footer style="text-align: center; height:100px; width:100%; bottom: 0; color:white; background: #2A3746">
+            <p style="margin-top: 10px">
+                Jhy ©2021 佩奇项目管理平台
+            </p>
+            <p style="margin-top: 10px">
+                <span>Wechat：Jhy20010404</span>
+            </p>
+            <p style="margin-top: 10px">
+                <span>QQ：3544329458</span>
+            </p>
+
+        </el-footer>
+    </el-container>
+</div>
+
+<!--    js-->
+<script src="../../js/jquery.min.js"></script>
+<script src="../../js/vue.min.js"></script>
+<script src="../../js/element.js"></script>
+<script src="../../js/vue-resource.js"></script>
+
+<script>
+    let urlBase = "/api/blog/";
+    new Vue({
+        el: "#wrapper",
+        data: {
+            src: 'index.html',
+            search: '',
+            blogData: [],
+            pageNum: 1,
+            pageSize: 6,
+            total: 0,
+            user: {},
+            imgList: [],
+            tags: [],
+            isAdmin: false,
+            top: 10,
+            bottom: 10,
+            dialogVisible: false,
+            date1: '',
+            options: [],
+            selectedOptions: [],
+            cityArr: [], //城市列表
+            areaArr: [], //区县列表
+            province: "", //省
+            city: "", //市
+            area: "", // 区县,
+            provinceCityArea: "", //选择器选择的省市区
+            ty:true,
+            mse:"",
+            email:"",
+            phone:"",
+            nickName:"",
+            type:"",
+            message:"",
+            flag:false
+        },
+        created() {
+
+            $.get("/api/user/session").then(res => {
+                if (res.data) {
+                    this.user = res.data;
+                    this.flag=true;
+                    console.log(this.user);
+                    if (this.user.id === 1) {
+                        this.isAdmin = true;
+                    }
+                    if(!this.user.email||!this.user.birth||!this.user.nickName||!this.user.address||!this.user.phone){
+                        this.dialogVisible=true;
+                        // window.location.href="/page/front/new.html";
+                    }
+                    this.nickName=this.user.nickName;
+                    this.phone=this.user.phone;
+                    this.email=this.user.email;
+                    this.date1=this.user.birth;
+                    this.selectedOptions=this.user.address;
+                }
+            });
+            $.get("/api/tag").then(res => {
+                this.tags = res.data;
+            });
+            this.loadCarousel();
+            this.loadBlogs();
+            this.initDistPicker();
+        },
+        methods: {
+            handleSelect(key) {
+                location.href = key;
+                // window.setInterval("reinitIframe()", 50);
+            },
+            sign(obj) {
+
+            },
+            logout() {
+                $.get("/api/user/logout");
+                sessionStorage.removeItem("user");
+                location.href = "/page/front/index.html";
+            },
+            enterEnd() {
+                location.href = "/page/end/frame.html";
+            },
+            loadCarousel() {
+                $.get(urlBase + "/carousel").then(res => {
+                    this.imgList = res.data.records;
+                })
+            },
+            loadBlogs() {
+                $.get(urlBase + "/page?pageNum=" + this.pageNum + "&pageSize=" + this.pageSize + "&name=" + this.search).then(res => {
+                    let data = res.data.records;
+                    data.forEach(item => {
+                        let descr = item.description;
+                        let title = item.title;
+                        item.description = descr.length <= 35 ? descr : (descr.substring(0, 35) + '...');
+                        item.title = title.length <= 30 ? title : (title.substring(0, 30) + '...');
+                    });
+                    this.blogData = data;
+                    this.total = res.data.total;
+                })
+            },
+            handleSizeChange(pageSize) {
+                this.pageSize = pageSize;
+                this.loadBlogs();
+            },
+            handleCurrentChange(pageNum) {
+                this.pageNum = pageNum;
+                this.loadBlogs();
+            },
+            showImg(id) {
+                document.getElementById(id).style.display = 'block';
+            },
+            hideImg(id) {
+                document.getElementById(id).style.display = 'none';
+            },
+            initDistPicker() {
+                console.log("initDistrictsPicker");
+                let self = this;
+                this.$http.get("../../file/districts.json").then(function (respones) {
+                    console.log("respones==>", respones);
+                    let distData = respones.data;
+                    let options = [];
+                    // 省
+                    for (var provinceKy in distData["100000"]) {
+                        let optProvinceItem = {
+                            value: provinceKy,
+                            label: distData["100000"][provinceKy]
+                        };
+                        if (distData[provinceKy]) {
+                            // 市
+                            for (var cityKy in distData[provinceKy]) {
+                                optProvinceItem.children = optProvinceItem.children
+                                    ? optProvinceItem.children
+                                    : [];
+                                let optCityItem = {
+                                    value: cityKy,
+                                    label: distData[provinceKy][cityKy]
+                                };
+                                if (distData[cityKy]) {
+                                    // 区
+                                    for (var areaKy in distData[cityKy]) {
+                                        optCityItem.children = optCityItem.children
+                                            ? optCityItem.children
+                                            : [];
+                                        let optAreaItem = {
+                                            value: areaKy,
+                                            label: distData[cityKy][areaKy]
+                                        };
+                                        optCityItem.children.push(optAreaItem);
+                                    }
+                                }
+                                optProvinceItem.children.push(optCityItem);
+                            }
+                        }
+                        options.push(optProvinceItem);
+                    }
+                    self.distData = distData;
+                    self.options = options;
+                });
+            },
+            //选择地区
+            handleChange(value) {
+                let self = this;
+                console.log("value=>", value);
+                //获取省名
+                self.options.map((item, index) => {
+                    if (item.value == value[0]) {
+                        self.cityArr = item.children; //存储城市列表
+                        self.province = item.label;
+                    }
+                });
+                //获取市名
+                self.cityArr.map((item, index) => {
+                    if (item.value == value[1]) {
+                        self.areaArr = item.children; //存储区县列表
+                        self.city = item.label;
+                    }
+                });
+                //获取区县名
+                self.areaArr.map((item, index) => {
+                    if (item.value == value[2]) {
+                        self.area = item.label;
+                    }
+                });
+                self.provinceCityArea = self.province + self.city + self.area;
+                console.log("self.provinceCityArea", self.provinceCityArea);
+            },
+            submit_save() {
+                if (!this.checkPhone(this.phone) && !this.checkEmail(this.email)) {
+                    this.ty=false;
+                    this.mse = "手机号码和邮箱不符合格式要求"
+                }else if(!this.checkPhone(this.phone)){
+                    this.ty=false;
+                    this.mse = "手机号码不符合格式要求"
+                }else if(!this.checkEmail(this.email)){
+                    this.ty=false;
+                    this.mse = "邮箱不符合格式要求"
+                }else{
+                    this.ty=true;
+                    this.user.nickName=this.nickName;
+                    this.user.email=this.email;
+                    this.user.phone=this.phone;
+                    this.user.birth = this.date1;
+                    this.user.address = this.provinceCityArea;
+                    $.ajax({
+                        url: "/api/user/update",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify(this.user)
+                    }).then(res => {
+                        if (res.code === '0') {
+                            this.$message({
+                                message: "修改成功",
+                                type: "success"
+                            });
+                            sessionStorage.setItem("user", JSON.stringify(res.data));
+                        } else {
+                            this.$message({
+                                message: res.msg,
+                                type: "error"
+                            })
+                        }
+                    })
+                    this.dialogVisible = false;
+                }
+            },
+            getAge(strBirthday){
+                var returnAge,
+                    strBirthdayArr=strBirthday.split("-"),
+                    birthYear = strBirthdayArr[0],
+                    birthMonth = strBirthdayArr[1],
+                    birthDay = strBirthdayArr[2],
+                    d = new Date(),
+                    nowYear = d.getFullYear(),
+                    nowMonth = d.getMonth() + 1,
+                    nowDay = d.getDate();
+                if(nowYear == birthYear){
+                    returnAge = 0;//同年 则为0周岁
+                }
+                else{
+                    var ageDiff = nowYear - birthYear ; //年之差
+                    if(ageDiff > 0){
+                        if(nowMonth == birthMonth) {
+                            var dayDiff = nowDay - birthDay;//日之差
+                            if(dayDiff < 0) {
+                                returnAge = ageDiff - 1;
+                            }else {
+                                returnAge = ageDiff;
+                            }
+                        }else {
+                            var monthDiff = nowMonth - birthMonth;//月之差
+                            if(monthDiff < 0) {
+                                returnAge = ageDiff - 1;
+                            }
+                            else {
+                                returnAge = ageDiff ;
+                            }
+                        }
+                    }else {
+                        returnAge = -1;//返回-1 表示出生日期输入错误 晚于今天
+                    }
+                }
+                return returnAge;//返回周岁年龄
+            },
+            checkPhone(str) {
+                var reg=/^1[3456789]\d{9}$/;
+                return reg.test(str);
+            },
+            checkEmail(str) {
+                var reg = /^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/;
+                return reg.test(str);
+            },
+            enterAD(){
+                location.href="/page/front/new.html";
+            }
+        }
+    })
+</script>
+</body>
+</html>

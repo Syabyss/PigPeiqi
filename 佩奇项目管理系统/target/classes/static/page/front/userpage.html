@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta HTTP-EQUIV="pragma" CONTENT="no-cache">
+    <meta HTTP-EQUIV="Cache-Control" CONTENT="no-cache, must-revalidate">
+    <meta HTTP-EQUIV="expires" CONTENT="0">
+    <title>个人主页</title>
+    <link rel="stylesheet" href="../../css/element.css">
+    <link rel="stylesheet" href="../../css/base.css">
+</head>
+<body>
+<div id="wrapper" v-cloak>
+    <div align="center">
+        <el-avatar :size="100" :src="user.avatar"></el-avatar>
+            <el-upload action="http://localhost:8888/files/upload" :on-success="fileSuccessUpload" show-file-list="false">
+                <el-button size="small" type="primary">点击上传</el-button>
+            </el-upload>
+    </div>
+    <br><br>
+    <div align="center">
+        <el-row style="padding: 5px 0">
+            <el-col :span="24">
+                <el-card>
+                    <el-descriptions title="个人信息" direction="vertical" :column="4" border>
+                        <el-descriptions-item >
+                            <template slot="label">
+                                <i class="el-icon-user"></i>
+                                姓  名
+                            </template>
+                            {{user.nickName}}
+                        </el-descriptions-item>
+                        <el-descriptions-item >
+                            <template slot="label">
+                                <i class="el-icon-mobile-phone"></i>
+                                手机号码
+                            </template>
+                            {{user.phone}}
+                        </el-descriptions-item>
+                        <el-descriptions-item >
+                            <template slot="label">
+                                <i class="el-icon-s-promotion"></i>
+                                邮  箱
+                            </template>
+                            {{user.email}}
+                        </el-descriptions-item>
+                        <el-descriptions-item >
+                            <template slot="label">
+                                <i class="el-icon-coordinate"></i>
+                                部  门
+                            </template>
+                            {{user.department}}
+                        </el-descriptions-item>
+                        <el-descriptions-item :span="2">
+                            <template slot="label">
+                                <i class="el-icon-s-home"></i>
+                                居住地址
+                            </template>
+                            {{user.address}}
+                        </el-descriptions-item>
+                        <el-descriptions-item>
+                            <template slot="label">
+                                <i class="el-icon-tickets"></i>
+                                年  龄
+                            </template>
+                            {{getAge(user.birth)}}
+                        </el-descriptions-item>
+                        <el-descriptions-item>
+                            <template slot="label">
+                                <i class="el-icon-male"></i>
+                                性  别
+                            </template>
+                            {{user.sex}}
+                        </el-descriptions-item>
+                        <el-descriptions-item>
+                            <template slot="label">
+                                <i class="el-icon-s-flag"></i>
+                                民  族
+                            </template>
+                            {{user.nation}}
+                        </el-descriptions-item>
+                        <el-descriptions-item>
+                            <template slot="label">
+                                <i class="el-icon-s-custom"></i>
+                                学  历
+                            </template>
+                            {{user.education}}
+                        </el-descriptions-item>
+                        <el-descriptions-item>
+                            <template slot="label">
+                                <i class="el-icon-share"></i>
+                                学  位
+                            </template>
+                            {{user.degree}}
+                        </el-descriptions-item>
+                        <el-descriptions-item>
+                            <template slot="label">
+                                <i class="el-icon-share"></i>
+                                职  称
+                            </template>
+                            {{user.title}}
+                        </el-descriptions-item>
+                        <el-descriptions-item>
+                            <template slot="label">
+                                <i class="el-icon-s-management"></i>
+                                专  业
+                            </template>
+                            {{user.major}}
+                        </el-descriptions-item>
+                        <el-descriptions-item>
+                            <template slot="label">
+                                <i class="el-icon-school"></i>
+                                毕业院校
+                            </template>
+                            {{user.school}}
+                        </el-descriptions-item>
+                        <el-descriptions-item>
+                            <template slot="label">
+                                <i class="el-icon-date"></i>
+                                毕业时间
+                            </template>
+                            {{user.graduation}}
+                        </el-descriptions-item>
+                    </el-descriptions>
+                </el-card>
+            </el-col>
+        </el-row>
+    </div>
+    <br>
+    <el-divider></el-divider>
+    <div >
+        <el-row style="padding: 5px 0">
+            <el-col :span="24">
+                <el-card>
+                    <h3>用户信息完善度</h3>
+                    <div align="center">
+                        <el-progress type="circle" :percentage="percentage"></el-progress>
+                    </div>
+                </el-card>
+            </el-col>
+        </el-row>
+    </div>
+    <br>
+    <el-divider></el-divider>
+    <el-row style="padding: 5px 0">
+        <el-col :span="24">
+            <el-card>
+                <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+                <div id="pie" style="width: 100%;height:400px; margin: 0 auto"></div>
+            </el-card>
+        </el-col>
+    </el-row>
+
+    <br>
+</div>
+
+<script src="../../js/echarts.min.js"></script>
+<script src="../../js/china.js"></script>
+<script src="../../js/jquery.min.js"></script>
+<script src="../../js/vue.min.js"></script>
+<script src="../../js/element.js"></script>
+<script src="../../js/vue-resource.js"></script>
+
+
+<script>
+    const viewOption = {
+        title: {
+            text: '上传项目数量分类统计',
+            subtext: '根据标签',
+            left: 'center'
+        },
+        tooltip: {
+            trigger: 'item'
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'left',
+        },
+        series: [
+            {
+                name: '上传项目数量',
+                type: 'pie',
+                radius: '50%',
+                data: [],
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    };
+
+    new Vue({
+        el: "#wrapper",
+        data: {
+            user:{},
+            entity:{},
+            num_total:"",
+            num_mine:"",
+            tags:{},
+            notices: [],
+            percentage:"0",
+            fileList:[]
+        },
+        mounted() {
+            this.user = sessionStorage.getItem("user") ? JSON.parse(sessionStorage.getItem("user")) : {};
+            this.user.avatar="http://localhost:8888//"+this.user.avatar;
+            $.get("/api/blog").then(res => {
+                if (res) {
+                    this.entity=res.data;
+                    console.log(this.entity);
+                    this.getNum();
+                    this.getCharts(this.user);
+                    this.getPercentage();
+                }
+            });
+
+        },
+        methods:{
+            fileSuccessUpload(res) {
+                this.entity=this.user;
+                this.entity.avatar = "/files/"+res.data;
+                console.log(res);
+                let type = this.entity.id ? "PUT" : "POST";
+                $.ajax({
+                    url: "/api/user/",
+                    type: type,
+                    contentType: "application/json",
+                    data: JSON.stringify(this.entity)
+                }).then(res => {
+                    if (res.code === '0') {
+                        this.$message({
+                            message: "保存成功",
+                            type: "success"
+                        });
+                    } else {
+                        this.$message({
+                            message: res.msg,
+                            type: "error"
+                        })
+                    }
+                })
+                this.$forceUpdate();
+            },
+            getAge(strBirthday){
+                var returnAge,
+                    strBirthdayArr=strBirthday.split("-"),
+                    birthYear = strBirthdayArr[0],
+                    birthMonth = strBirthdayArr[1],
+                    birthDay = strBirthdayArr[2],
+                    d = new Date(),
+                    nowYear = d.getFullYear(),
+                    nowMonth = d.getMonth() + 1,
+                    nowDay = d.getDate();
+                if(nowYear == birthYear){
+                    returnAge = 0;//同年 则为0周岁
+                }
+                else{
+                    var ageDiff = nowYear - birthYear ; //年之差
+                    if(ageDiff > 0){
+                        if(nowMonth == birthMonth) {
+                            var dayDiff = nowDay - birthDay;//日之差
+                            if(dayDiff < 0) {
+                                returnAge = ageDiff - 1;
+                            }else {
+                                returnAge = ageDiff;
+                            }
+                        }else {
+                            var monthDiff = nowMonth - birthMonth;//月之差
+                            if(monthDiff < 0) {
+                                returnAge = ageDiff - 1;
+                            }
+                            else {
+                                returnAge = ageDiff ;
+                            }
+                        }
+                    }else {
+                        returnAge = -1;//返回-1 表示出生日期输入错误 晚于今天
+                    }
+                }
+                return returnAge;//返回周岁年龄
+            },
+            getNum(){
+                var num=0;
+                for(var i=0;i<Object.keys(this.entity).length;i++){
+                    if(this.entity[i].author===this.user.username){
+                        num++;
+                    }
+                }
+                this.num_mine=num;
+                console.log(this.num_mine)
+                this.num_total=Object.keys(this.entity).length;
+                console.log(this.num_total);
+
+            },
+            getCharts(user){
+                // 基于准备好的dom，初始化echarts实例，阅读量统计
+                let clickChart = echarts.init(document.getElementById('pie'));
+                $.ajax({
+                    url: "/api/blog",
+                    success(res) {
+                        let tag = Array.from(new Set(res.data.map(v => v.tag)));
+                        tag.forEach(item => {
+                            let count = 0;
+                            res.data.filter(v => {
+                                if (v.tag === item) {
+                                    if(user.username===v.author){
+                                        count ++;
+                                        console.log(count)
+                                    }
+                                }
+                            });
+                            viewOption.series[0].data.push({name: item, value: count})
+                        });
+                        // 使用刚指定的配置项和数据显示图表。
+                        clickChart.setOption(viewOption);
+                    }
+                });
+            },
+            getPercentage(){
+                var total=15;
+                var now=0;
+                if(this.user.nickName!=null)
+                    now++;
+                if(this.user.email!=null)
+                    now++;
+                if(this.user.phone!=null)
+                    now++;
+                if(this.user.avatar!=null)
+                    now++;
+                if(this.user.address!=null)
+                    now++;
+                if(this.user.birth!=null)
+                    now++;
+                if(this.user.nation!=null)
+                    now++;
+                if(this.user.department!=null)
+                    now++;
+                if(this.user.education!=null)
+                    now++;
+                if(this.user.degree!=null)
+                    now++;
+                if(this.user.title!=null)
+                    now++;
+                if(this.user.major!=null)
+                    now++;
+                if(this.user.school!=null)
+                    now++;
+                if(this.user.graduation!=null)
+                    now++;
+                if(this.user.sex!=null)
+                    now++;
+                this.percentage=parseInt(now*100/total);
+            }
+        }
+    });
+</script>
+</body>
+</html>

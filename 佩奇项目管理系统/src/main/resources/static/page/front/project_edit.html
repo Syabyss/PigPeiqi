@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta HTTP-EQUIV="pragma" CONTENT="no-cache">
+  <meta HTTP-EQUIV="Cache-Control" CONTENT="no-cache, must-revalidate">
+  <meta HTTP-EQUIV="expires" CONTENT="0">
+  <title>项目管理</title>
+  <link rel="stylesheet" href="../../css/element.css">
+  <link rel="stylesheet" href="../../css/base.css">
+</head>
+<body>
+<div id="wrapper" v-cloak>
+  <div style="padding-bottom: 10px">
+    <el-breadcrumb separator-class="el-icon-arrow-right">
+      <el-breadcrumb-item @click.native="parent.changeIndex('index')">首页</el-breadcrumb-item>
+      <el-breadcrumb-item>项目编辑</el-breadcrumb-item>
+    </el-breadcrumb>
+  </div>
+
+  <div style="height: 1px; margin: 10px 0; background-color: white"></div>
+
+  <el-form :model="entity">
+    <el-row style="padding: 5px 0">
+      <el-col :span="24">
+        <el-card>
+          <el-divider content-position="left">项目基础信息</el-divider>
+          <el-form-item label="项目名称" label-width="100px">
+            <el-input v-model="entity.title" autocomplete="off" style="width: 40%"></el-input>
+          </el-form-item>
+          <el-form-item label="项目摘要" label-width="100px">
+            <el-input v-model="entity.description" type="textarea" autocomplete="off" style="width: 40%"></el-input>
+          </el-form-item>
+          <el-form-item label="所属学科"  label-width="100px">
+            <el-select clearable v-model="entity.tag" filterable placeholder="请选择" style="width: 40%">
+              <el-option v-for="item in options" :key="item.name" :label="item.name" :value="item.name"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="项目经费" label-width="100px">
+            <el-input v-model="entity.funds" autocomplete="off" style="width: 40%"></el-input>
+          </el-form-item>
+        </el-card>
+      </el-col>
+    </el-row>
+    <el-row style="padding: 5px 0">
+      <el-col :span="24">
+        <el-card>
+          <el-divider content-position="left">项目单位信息</el-divider>
+          <el-form-item label="承办单位" label-width="100px">
+            <el-select clearable v-model="entity.undertaker" filterable placeholder="请选择" style="width: 40%">
+              <el-option v-for="item in departments" :key="item.name" :label="item.name" :value="item.name"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="合作单位" label-width="100px">
+            <el-select clearable v-model="entity.cooperation" multiple filterable placeholder="请选择" style="width: 40%">
+              <el-option v-for="item in departments" :key="item.name" :label="item.name" :value="item.name"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="下达单位" label-width="100px">
+            <el-select clearable v-model="entity.releasem" multiple filterable placeholder="请选择" style="width: 40%">
+              <el-option v-for="item in departments" :key="item.name" :label="item.name" :value="item.name"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="参与人员" label-width="100px">
+            <el-select clearable v-model="entity.participants" multiple filterable placeholder="请选择" style="width: 40%">
+              <el-option v-for="item in userData" :key="item.nickName" :label="item.nickName" :value="item.nickName">
+                <span style="float: left">{{ item.nickName }}</span>
+                <span style="float: right; color: #8492a6; font-size: 13px">{{ item.department }}</span>
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-card>
+      </el-col>
+    </el-row>
+    <el-row style="padding: 5px 0">
+      <el-col :span="24">
+        <el-card>
+          <el-divider content-position="left">项目立项信息</el-divider>
+          <el-form-item label="项目级别" label-width="100px">
+            <el-radio-group v-model="entity.level">
+              <el-radio label="国家级"></el-radio>
+              <el-radio label="省级"></el-radio>
+              <el-radio label="市级"></el-radio>
+              <el-radio label="其它"></el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="项目起止时间" label-width="100px">
+            <el-date-picker
+                    v-model="timeData"
+                    type="daterange"
+                    size="mini"
+                    range-separator="至"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期"
+                    value-format="yyyy-MM-dd"
+                    class="data-pick"
+                    unlink-panels
+            ></el-date-picker>
+          </el-form-item>
+          <el-form-item label="项目类别" label-width="100px">
+            <el-radio-group v-model="entity.type">
+              <el-radio label="横向"></el-radio>
+              <el-radio label="纵向"></el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="项目进行状态" label-width="100px">
+            <el-radio-group v-model="entity.status">
+              <el-radio label="开题"></el-radio>
+              <el-radio label="在研"></el-radio>
+              <el-radio label="暂停"></el-radio>
+              <el-radio label="终止"></el-radio>
+              <el-radio label="验收"></el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-card>
+      </el-col>
+    </el-row>
+    <el-row style="padding: 5px 0">
+      <el-col :span="24">
+        <el-card>
+          <el-divider content-position="left">项目展示信息</el-divider>
+          <el-form-item label="项目主图" label-width="100px">
+            <el-upload action="http://localhost:8888/files/upload" :on-success="fileSuccessUpload" :file-list="fileList">
+              <el-button size="small" type="primary">点击上传</el-button>
+            </el-upload>
+          </el-form-item>
+          <el-form-item label="项目核心内容" label-width="100px">
+            <textarea id="mytextarea" cols="30" rows="30"></textarea>
+          </el-form-item>
+        </el-card>
+      </el-col>
+    </el-row>
+  </el-form>
+  <div style="padding: 10px">
+    <el-button type="primary" @click="save">保 存</el-button>
+    <el-button @click="history.back()">取 消</el-button>
+  </div>
+</div>
+
+<script src="../../js/jquery.min.js"></script>
+<script src="../../js/vue.min.js"></script>
+<script src="../../js/element.js"></script>
+<script src="../../js/tinymce/tinymce.min.js"></script>
+
+
+<script>
+
+  let urlBase = "/api/blog/";
+  new Vue({
+    el: "#wrapper",
+    data: {
+      options: [],
+      fileList: [],
+      user: {},
+      tableData: [],
+      pageNum: 1,
+      pageSize: 10,
+      total: 0,
+      dialogFormVisible: false,
+      entity: {},
+      isCollapse: false,
+      search: '',
+      timeData:'',
+      userData:[],
+      userTotal:0,
+      departments: [],
+      pickerOptions: {
+        shortcuts: [{
+          text: '最近一周',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近一个月',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近三个月',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+            picker.$emit('pick', [start, end]);
+          }
+        }]
+      },
+    },
+    mounted() {
+      this.user = sessionStorage.getItem("user") ? JSON.parse(sessionStorage.getItem("user")) : {};
+      tinymce.init({
+        selector: '#mytextarea',
+        language: 'zh_CN',
+        plugins: ['quickbars', 'link', 'table', 'image'], //选择需加载的插件
+      });
+
+      this.getPassYearFormatDate ();
+      $.get("/api/user/" + "/page?pageNum=" + this.pageNum + "&pageSize=" + this.pageSize + "&name=" + this.search).then(res => {
+        this.userData = res.data.records;
+        this.userTotal = res.data.total;
+      });
+      let id = location.search.split("=")[1];
+      if (id) {
+        $.get("/api/blog/" + id).then(res => {
+          this.entity = res.data;
+          setTimeout(() => {
+            tinymce.activeEditor.setContent(res.data.content)
+          }, 500)
+        })
+      }
+      $.get("/api/tag").then(res => {
+        this.options = res.data;
+      })
+      $.get("/api/user").then(res => {
+        this.userData = res.data;
+      })
+      $.get("/api/department").then(res => {
+        this.departments = res.data;
+      })
+    },
+    methods: {
+      fileSuccessUpload(res) {
+        this.entity.file = "http://localhost:8888/files/" + res.data;
+        this.entity.img = "http://localhost:8888/files/" + res.data;
+      },
+      handleCollapse() {
+        this.isCollapse = !this.isCollapse;
+      },
+      logout() {
+        $.get("/api/user/logout");
+        sessionStorage.removeItem("user");
+        location.href = "/page/end/login.html";
+        alert(value)
+      },
+      loadTable() {
+        $.get(urlBase + "/page?pageNum=" + this.pageNum + "&pageSize=" + this.pageSize + "&name=" + this.search).then(res => {
+          this.tableData = res.data.records;
+          this.total = res.data.total;
+        });
+      },
+      exp() {   // excel 导出
+        window.open(urlBase + "/export");
+      },
+      handleSizeChange(pageSize) {
+        this.pageSize = pageSize;
+        this.loadTable();
+      },
+      handleCurrentChange(pageNum) {
+        this.pageNum = pageNum;
+        this.loadTable();
+      },
+      add() {
+        this.entity = {};
+        this.fileList = [];
+        this.dialogFormVisible = true;
+      },
+      save() {
+        this.entity.start=this.timeData[0];
+        this.entity.end=this.timeData[1];
+        this.entity.content = tinymce.activeEditor.getContent();
+        let type = this.entity.id ? "PUT" : "POST";
+        $.ajax({
+          url: urlBase,
+          type: type,
+          contentType: "application/json",
+          data: JSON.stringify(this.entity)
+        }).then(res => {
+          if (res.code === '0') {
+            this.$message({
+              message: "保存成功",
+              type: "success"
+            });
+          } else {
+            this.$message({
+              message: res.msg,
+              type: "error"
+            })
+          }
+          location.href="project.html"
+        })
+      },
+      edit(obj) {
+        this.entity = JSON.parse(JSON.stringify(obj));
+        this.fileList = [];
+        this.dialogFormVisible = true;
+      },
+      del(id) {
+        $.ajax({
+          url: urlBase + id,
+          type: "delete"
+        }).then(res => {
+          if (res.code === '0') {
+            this.$message({
+              message: "删除成功",
+              type: "success"
+            })
+            this.loadTable();
+          } else {
+            this.$message({
+              message: res.msg,
+              type: "error"
+            })
+          }
+        })
+      },
+      /* 获取过去时间，并传值给现在时间 */
+      getPassYearFormatDate () {
+        var nowDate = new Date();
+        var date = new Date(nowDate);
+        date.setDate(date.getDate() - 365);
+        var seperator1 = '-';
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        var strDate = date.getDate();
+        if (month >= 1 && month <= 9) {
+          month = '0' + month;
+        }
+        if (strDate >= 0 && strDate <= 9) {
+          strDate = '0' + strDate;
+        }
+        var formatDate = year + seperator1 + month + seperator1 + strDate;
+        this.getNowFormatDate(formatDate);
+      },
+      /* 获取现在时间，并接受过去时间的值 */
+      getNowFormatDate (formatDate) {
+        if(!this.entity.start && !this.entity.end){
+          var date = new Date();
+          var seperator1 = '-';
+          var year = date.getFullYear();
+          var month = date.getMonth() + 1;
+          var strDate = date.getDate();
+          if (month >= 1 && month <= 9) {
+            month = '0' + month;
+          }
+          if (strDate >= 0 && strDate <= 9) {
+            strDate = '0' + strDate;
+          }
+          var nowData = year + seperator1 + month + seperator1 + strDate;
+          this.timeData= [formatDate, nowData];  // 默认赋值一年时间
+        }else{
+          this.timeData= [this.entity.start, this.entity.end];
+        }
+      }
+    }
+  })
+</script>
+</body>
+</html>
